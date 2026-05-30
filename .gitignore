@@ -1,0 +1,56 @@
+# ==========================================
+# Ficheiros e Caches do Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ==========================================
+# Jupyter Notebooks
+# ==========================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# ==========================================
+# Ambientes Virtuais (Conda / Venv)
+# ==========================================
+.env
+.venv
+env/
+venv/
+bert_env/
+.conda
+
+# ==========================================
+# Outputs do Treino (Hugging Face / Trainer)
+# ==========================================
+.results/
+
+# ==========================================
+# Modelos, Datasets e Ficheiros Pesados
+# ==========================================
+.cache/
+huggingface/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+
+# ==========================================
+# Ficheiros de Registo (Logs)
+# ==========================================
+*.log
+logs/
+
+# ==========================================
+# Ficheiros do Sistema Operativo
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
