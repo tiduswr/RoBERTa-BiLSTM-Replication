@@ -3,7 +3,8 @@ from src.config import (
     LEARNING_RATE, EPOCHS, TABELAS_ARTIGO
 )
 from src.utils import set_seed
-from src.data_loader import DataModule, IMDBStrategy, TwitterAirlineStrategy, Sentiment140Strategy
+from src.data_loader import DataModule
+from src.dataset_strategies import IMDBStrategy, TwitterAirlineStrategy, Sentiment140Strategy
 from src.model import RoBERTaBiLSTM
 from src.trainer import ModelTrainer
 
