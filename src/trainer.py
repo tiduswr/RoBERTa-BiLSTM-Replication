@@ -7,21 +7,23 @@ from torch.amp import GradScaler, autocast
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from tqdm import tqdm
 from src.config import DEVICE
+from src.early_stopping import EarlyStopping
 
 class ModelTrainer:
-    """Motor de otimização com ciclo de Validação por época e Avaliação final."""
+    """Motor de otimização com ciclo de Validação, Early Stopping e Avaliação final."""
     
-    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader, lr: float, epochs: int):
+    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader, lr: float, epochs: int, patience: int = 2, delta: int = 0):
         self.model = model.to(DEVICE)
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
         self.epochs = epochs
+        self.early_stopping = EarlyStopping(patience=patience, delta=delta)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
         
     def train(self) -> None:
-        print("\nA iniciar o ciclo de fine-tuning ponta-a-ponta...")
+        print(f"\nA iniciar o ciclo de fine-tuning (Patience={self.early_stopping.patience})...")
         scaler = GradScaler('cuda')
         
         for epoch in range(self.epochs):
@@ -69,12 +71,18 @@ class ModelTrainer:
                     all_val_preds.extend(preds)
                     all_val_labels.extend(labels.cpu().numpy())
             
-            val_acc = accuracy_score(all_val_labels, all_val_preds) * 100
             avg_val_loss = total_val_loss / len(self.val_loader)
+            val_acc = accuracy_score(all_val_labels, all_val_preds) * 100
             print(f"   -> Validação: Loss: {avg_val_loss:.4f} | Acurácia: {val_acc:.2f}%")
+            
+            self.early_stopping(avg_val_loss, self.model)
+            if self.early_stopping.early_stop:
+                print("⚠️ Early Stopping ativado: Parando o treino e restaurando os melhores pesos.")
+                self.early_stopping.load_best_weights(self.model)
+                break
                 
     def evaluate(self, target_metrics: dict, dataset_name: str) -> None:
-        print("\nA executar a avaliação final no conjunto de TESTE (5%)...")
+        print("\nA executar a avaliação final no conjunto de TESTE...")
         self.model.eval()
         all_preds, all_labels = [], []
         
@@ -96,10 +104,7 @@ class ModelTrainer:
         rec = recall_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         f1 = f1_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         
-        # 1. Imprime na tela
         self._print_report(acc, prec, rec, f1, target_metrics)
-        
-        # 2. Salva no JSON
         self._save_results_to_json(acc, prec, rec, f1, target_metrics, dataset_name)
 
     def _print_report(self, acc: float, prec: float, rec: float, f1: float, target: dict) -> None:
@@ -115,49 +120,23 @@ class ModelTrainer:
         print("="*65 + "\n")
 
     def _save_results_to_json(self, acc: float, prec: float, rec: float, f1: float, target: dict, dataset_name: str) -> None:
-        """Salva as métricas de forma persistente e estruturada num ficheiro JSON."""
-        
-        # Garante que a pasta 'data' existe
         folder_path = "data"
         os.makedirs(folder_path, exist_ok=True)
         file_path = os.path.join(folder_path, "experiment_results.json")
         
-        # Estrutura do novo registo
         new_record = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "dataset": dataset_name,
-            "hyperparameters": {
-                "epochs": self.epochs,
-                "learning_rate": self.optimizer.param_groups[0]['lr']
-            },
-            "metrics_obtained": {
-                "accuracy": round(acc, 2),
-                "precision": round(prec, 2),
-                "recall": round(rec, 2),
-                "f1_score": round(f1, 2)
-            },
-            "metrics_target_article": {
-                "accuracy": target['acc'],
-                "precision": target['prec'],
-                "recall": target['rec'],
-                "f1_score": target['f1']
-            }
+            "metrics_obtained": {"accuracy": round(acc, 2), "f1_score": round(f1, 2)},
+            "metrics_target_article": {"accuracy": target['acc'], "f1_score": target['f1']}
         }
         
-        # Tenta ler o ficheiro existente para não sobrescrever experiências passadas
         if os.path.exists(file_path):
-            with open(file_path, "r", encoding="utf-8") as file:
-                try:
-                    data = json.load(file)
-                except json.JSONDecodeError:
-                    data = []
-        else:
-            data = []
+            with open(file_path, "r", encoding="utf-8") as f:
+                try: data = json.load(f)
+                except: data = []
+        else: data = []
             
-        # Adiciona a nova experiência e grava o ficheiro
         data.append(new_record)
-        
-        with open(file_path, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
-            
-        print(f"✅ Resultados guardados com sucesso em: '{file_path}'")
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)

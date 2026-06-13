@@ -14,6 +14,10 @@ HIDDEN_DIM = int(os.getenv("HIDDEN_DIM", "256"))
 DROPOUT_PROB = float(os.getenv("DROPOUT_PROB", "0.1"))
 DATASET_NAME = os.getenv("DATASET_NAME", "imdb").lower()
 
+# Early Stopping: monitorização de validação
+EARLY_STOPPING_PATIENCE = int(os.getenv("EARLY_STOPPING_PATIENCE", "2"))
+EARLY_STOPPING_DELTA = float(os.getenv("EARLY_STOPPING_DELTA", "0.0"))
+
 # Tabelas de Métricas do Artigo Científico (Alvos)
 # Mantêm-se hardcoded porque representam a "verdade terrestre" do artigo publicado
 TABELAS_ARTIGO = {

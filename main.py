@@ -1,6 +1,7 @@
 from src.config import (
     DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
-    LEARNING_RATE, EPOCHS, TABELAS_ARTIGO
+    LEARNING_RATE, EPOCHS, TABELAS_ARTIGO,
+    EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA
 )
 from src.utils import set_seed
 from src.data_loader import DataModule
@@ -42,7 +43,8 @@ def main():
         val_loader=val_loader,
         test_loader=test_loader, 
         lr=LEARNING_RATE, 
-        epochs=EPOCHS
+        epochs=EPOCHS,
+        patience=EARLY_STOPPING_PATIENCE
     )
     
     runtime_engine.train()
