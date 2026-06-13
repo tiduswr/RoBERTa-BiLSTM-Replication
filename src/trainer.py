@@ -8,19 +8,24 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from tqdm import tqdm
 from src.config import DEVICE
 from src.early_stopping import EarlyStopping
+from src.config import (
+    DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
+    LEARNING_RATE, EPOCHS, TABELAS_ARTIGO,
+    EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA, BATCH_SIZE, MAX_LENGTH
+)
 
 class ModelTrainer:
     """Motor de otimização com ciclo de Validação, Early Stopping e Avaliação final."""
     
-    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader, lr: float, epochs: int, patience: int = 2, delta: int = 0):
+    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader):
         self.model = model.to(DEVICE)
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
-        self.epochs = epochs
-        self.early_stopping = EarlyStopping(patience=patience, delta=delta)
+        self.epochs = EPOCHS
+        self.early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE, delta=EARLY_STOPPING_DELTA)
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=lr)
+        self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=LEARNING_RATE)
         
     def train(self) -> None:
         print(f"\nA iniciar o ciclo de fine-tuning (Patience={self.early_stopping.patience})...")
@@ -81,7 +86,7 @@ class ModelTrainer:
                 self.early_stopping.load_best_weights(self.model)
                 break
                 
-    def evaluate(self, target_metrics: dict, dataset_name: str) -> None:
+    def evaluate(self) -> None:
         print("\nA executar a avaliação final no conjunto de TESTE...")
         self.model.eval()
         all_preds, all_labels = [], []
@@ -104,10 +109,11 @@ class ModelTrainer:
         rec = recall_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         f1 = f1_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         
-        self._print_report(acc, prec, rec, f1, target_metrics)
-        self._save_results_to_json(acc, prec, rec, f1, target_metrics, dataset_name)
+        self._print_report(acc, prec, rec, f1)
+        self._save_results_to_json(acc, prec, rec, f1)
 
-    def _print_report(self, acc: float, prec: float, rec: float, f1: float, target: dict) -> None:
+    def _print_report(self, acc: float, prec: float, rec: float, f1: float) -> None:
+        target = TABELAS_ARTIGO[DATASET_NAME]
         print("\n" + "="*65)
         print("          QUADRO COMPARATIVO FINAL: OBTIDO VS ARTIGO CIENTÍFICO")
         print("="*65)
@@ -119,18 +125,44 @@ class ModelTrainer:
         print(f"F1-Score    |       {f1:.2f}%       |         {target['f1']:.2f}%")
         print("="*65 + "\n")
 
-    def _save_results_to_json(self, acc: float, prec: float, rec: float, f1: float, target: dict, dataset_name: str) -> None:
+    def _save_results_to_json(self, acc: float, prec: float, rec: float, f1: float) -> None:
+        """Salva resultados e todas as configurações carregadas do .env num ficheiro JSON."""
+        target = TABELAS_ARTIGO[DATASET_NAME]
         folder_path = "data"
         os.makedirs(folder_path, exist_ok=True)
         file_path = os.path.join(folder_path, "experiment_results.json")
         
         new_record = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "dataset": dataset_name,
-            "metrics_obtained": {"accuracy": round(acc, 2), "f1_score": round(f1, 2)},
-            "metrics_target_article": {"accuracy": target['acc'], "f1_score": target['f1']}
+            "dataset": DATASET_NAME,
+            "hyperparameters": {
+                "seed": SEED,
+                "max_length": MAX_LENGTH,
+                "batch_size": BATCH_SIZE,
+                "epochs": EPOCHS,
+                "learning_rate": LEARNING_RATE,
+                "hidden_dim": HIDDEN_DIM,
+                "dropout": DROPOUT_PROB,
+                "early_stopping": {
+                    "patience": EARLY_STOPPING_PATIENCE,
+                    "delta": EARLY_STOPPING_DELTA
+                }
+            },
+            "metrics_obtained": {
+                "accuracy": round(acc, 2),
+                "precision": round(prec, 2),
+                "recall": round(rec, 2),
+                "f1_score": round(f1, 2)
+            },
+            "metrics_target_article": {
+                "accuracy": target['acc'],
+                "precision": target['prec'],
+                "recall": target['rec'],
+                "f1_score": target['f1']
+            }
         }
         
+        # Lógica de persistência
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
                 try: data = json.load(f)
@@ -138,5 +170,8 @@ class ModelTrainer:
         else: data = []
             
         data.append(new_record)
+        
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
+            
+        print(f"✅ Experiência registada com todos os parâmetros do .env em: '{file_path}'")

@@ -2,7 +2,7 @@ from typing import Tuple
 from src.dataset_strategies import DatasetStrategy
 from torch.utils.data import DataLoader
 from transformers import RobertaTokenizer
-from src.config import MAX_LENGTH, BATCH_SIZE
+from src.config import BATCH_SIZE
 
 class DataModule:
     """Gere a formatação PyTorch e os DataLoaders utilizando injeção de dependência."""

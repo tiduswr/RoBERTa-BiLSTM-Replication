@@ -1,7 +1,5 @@
 from src.config import (
-    DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
-    LEARNING_RATE, EPOCHS, TABELAS_ARTIGO,
-    EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA
+    DEVICE, SEED, DATASET_NAME
 )
 from src.utils import set_seed
 from src.data_loader import DataModule
@@ -31,24 +29,19 @@ def main():
     data_module = DataModule(strategy=strategy)
     train_loader, val_loader, test_loader, num_classes = data_module.load_and_prepare()
     
-    model_hybrid = RoBERTaBiLSTM(
-        hidden_dim=HIDDEN_DIM, 
-        num_labels=num_classes, 
-        dropout_prob=DROPOUT_PROB
+    model_hybrid = RoBERTaBiLSTM( 
+        num_labels=num_classes
     )
     
     runtime_engine = ModelTrainer(
         model=model_hybrid, 
         train_loader=train_loader, 
         val_loader=val_loader,
-        test_loader=test_loader, 
-        lr=LEARNING_RATE, 
-        epochs=EPOCHS,
-        patience=EARLY_STOPPING_PATIENCE
+        test_loader=test_loader
     )
     
     runtime_engine.train()
-    runtime_engine.evaluate(target_metrics=TABELAS_ARTIGO[DATASET_NAME], dataset_name=DATASET_NAME)
+    runtime_engine.evaluate()
 
 if __name__ == "__main__":
     main()
