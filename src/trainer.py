@@ -17,8 +17,9 @@ from src.config import (
 class ModelTrainer:
     """Motor de otimização com ciclo de Validação, Early Stopping e Avaliação final."""
     
-    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader):
+    def __init__(self, model: nn.Module, train_loader, val_loader, test_loader, is_smoke_test: bool = False):
         self.model = model.to(DEVICE)
+        self.is_smoke_test = is_smoke_test
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
@@ -109,8 +110,11 @@ class ModelTrainer:
         rec = recall_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         f1 = f1_score(all_labels, all_preds, average='weighted', zero_division=0) * 100
         
-        self._print_report(acc, prec, rec, f1)
-        self._save_results_to_json(acc, prec, rec, f1)
+        if not self.is_smoke_test:
+            self._print_report(acc, prec, rec, f1)
+            self._save_results_to_json(acc, prec, rec, f1)
+        else:
+            self._print_smoke_test_report(acc)
 
     def _print_report(self, acc: float, prec: float, rec: float, f1: float) -> None:
         target = TABELAS_ARTIGO[DATASET_NAME]
@@ -124,6 +128,14 @@ class ModelTrainer:
         print(f"Recall      |       {rec:.2f}%       |         {target['rec']:.2f}%")
         print(f"F1-Score    |       {f1:.2f}%       |         {target['f1']:.2f}%")
         print("="*65 + "\n")
+    
+    def _print_smoke_test_report(self, acc: float) -> None:
+        print("          RELATÓRIO DE SMOKE TEST (VERIFICAÇÃO DE FLUXO)")
+        print("="*65)
+        print(f"Status      | Pipeline Funcional")
+        print(f"Acurácia    | {acc:.2f}% (Dataset Sintético)")
+        print("-"*65)
+        print("✅ Todos os módulos (Data->Model->Trainer) integrados com sucesso.")
 
     def _save_results_to_json(self, acc: float, prec: float, rec: float, f1: float) -> None:
         """Salva resultados e todas as configurações carregadas do .env num ficheiro JSON."""

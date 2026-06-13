@@ -82,3 +82,28 @@ class Sentiment140Strategy:
         encoded_test = test_data.map(tokenize_fn, batched=True, remove_columns=dataset["train"].column_names)
         
         return encoded_train, encoded_val, encoded_test, 2
+    
+class DummyStrategy:
+    def prepare_data(self, tokenizer: PreTrainedTokenizer) -> Tuple[Dataset, Dataset, Dataset, int]:
+        print("A gerar dataset dummy (sintético) para Smoke Test...")
+        
+        # Criação de um dataset pequeno em memória
+        data = {
+            "text": ["Este é um teste para verificar o pipeline."] * 200,
+            "label": [1] * 200
+        }
+        
+        dataset = Dataset.from_dict(data)
+        
+        def tokenize_fn(batch):
+            return tokenizer(batch["text"], padding="max_length", truncation=True, max_length=MAX_LENGTH)
+            
+        # Divide o dataset dummy (o suficiente para treino, val e teste)
+        split_90_10 = dataset.train_test_split(test_size=0.2, seed=42)
+        split_5_5 = split_90_10["test"].train_test_split(test_size=0.5, seed=42)
+        
+        encoded_train = split_90_10["train"].map(tokenize_fn, batched=True, remove_columns=["text"])
+        encoded_val = split_5_5["train"].map(tokenize_fn, batched=True, remove_columns=["text"])
+        encoded_test = split_5_5["test"].map(tokenize_fn, batched=True, remove_columns=["text"])
+        
+        return encoded_train, encoded_val, encoded_test, 2

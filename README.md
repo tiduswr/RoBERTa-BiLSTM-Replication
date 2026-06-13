@@ -75,6 +75,32 @@ Os resultados de cada ciclo da experiência serão impressos no terminal e simul
 
 ---
 
+## 🔍 Smoke Test: Validação de Integridade
+
+O **Smoke Test** é um teste rápido para garantir que todo o seu pipeline está funcional antes de iniciar o treino real.
+
+### Propósito
+
+* **Testar o Fluxo:** Verifica se o `DataLoader`, o `Modelo` e o `Trainer` se comunicam sem erros.
+* **Sem Download:** Usa dados sintéticos (*Dummy Data*), tornando o teste instantâneo e offline.
+* **Zero Risco:** Evita perder horas de treino para descobrir um erro simples de configuração.
+
+### Como executar
+
+No seu terminal, dentro da pasta raiz do projeto, corra:
+
+```bash
+python -m test.smoke-test
+```
+
+### O que acontece?
+
+O sistema treina durante apenas **1 época** com dados de teste. Se ao final ver a mensagem `✅ Smoke test concluído com sucesso!`, o seu sistema está pronto para treinar os datasets reais.
+
+> **Dica:** Use sempre este comando após alterar o código ou o modelo para garantir que não introduziu erros estruturais.
+
+---
+
 ## 📊 Métricas Alvo (Ground Truth)
 
 O objetivo principal deste código é reproduzir e balizar a experimentação com base na tabela formal documentada no artigo. Ao rodar o pipeline final com a *Learning Rate* em $1\times 10^{-5}$ e *Hidden Units* iguais a 256, os valores-alvo esperados para a validação independente da replicação são:
