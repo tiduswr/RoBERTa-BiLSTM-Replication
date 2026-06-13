@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from tqdm import tqdm
 from src.config import DEVICE
@@ -22,7 +22,7 @@ class ModelTrainer:
         
     def train(self) -> None:
         print("\nA iniciar o ciclo de fine-tuning ponta-a-ponta...")
-        scaler = GradScaler()
+        scaler = GradScaler('cuda')
         
         for epoch in range(self.epochs):
             # 1. FASE DE TREINO
@@ -37,7 +37,7 @@ class ModelTrainer:
                 
                 self.optimizer.zero_grad()
                 
-                with autocast():
+                with autocast('cuda'):
                     outputs = self.model(input_ids, attention_mask)
                     loss = self.criterion(outputs, labels)
                 
@@ -60,7 +60,7 @@ class ModelTrainer:
                     attention_mask = batch["attention_mask"].to(DEVICE)
                     labels = batch["label"].to(DEVICE)
                     
-                    with autocast():
+                    with autocast('cuda'):
                         outputs = self.model(input_ids, attention_mask)
                         loss = self.criterion(outputs, labels)
                     
@@ -84,7 +84,7 @@ class ModelTrainer:
                 attention_mask = batch["attention_mask"].to(DEVICE)
                 labels = batch["label"].cpu().numpy()
                 
-                with autocast():
+                with autocast('cuda'):
                     outputs = self.model(input_ids, attention_mask)
                 
                 preds = torch.argmax(outputs, dim=1).cpu().numpy()

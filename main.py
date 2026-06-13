@@ -9,7 +9,7 @@ from src.model import RoBERTaBiLSTM
 from src.trainer import ModelTrainer
 
 def get_strategy(dataset_name: str):
-    """Factory para mapear a string do .env para a Estratégia concreta."""
+    """Factory simples para mapear a string do .env para a Estratégia concreta."""
     strategies = {
         "imdb": IMDBStrategy,
         "twitter_airline": TwitterAirlineStrategy,
@@ -28,7 +28,7 @@ def main():
     strategy = get_strategy(DATASET_NAME)
     
     data_module = DataModule(strategy=strategy)
-    train_loader, test_loader, num_classes = data_module.load_and_prepare()
+    train_loader, val_loader, test_loader, num_classes = data_module.load_and_prepare()
     
     model_hybrid = RoBERTaBiLSTM(
         hidden_dim=HIDDEN_DIM, 
@@ -39,6 +39,7 @@ def main():
     runtime_engine = ModelTrainer(
         model=model_hybrid, 
         train_loader=train_loader, 
+        val_loader=val_loader,
         test_loader=test_loader, 
         lr=LEARNING_RATE, 
         epochs=EPOCHS
