@@ -36,13 +36,13 @@ Para garantir a transparência e a auditoria de terceiros, este projeto adere es
 Para garantir que o cálculo de tensores ocorra num ambiente isolado, é obrigatório o uso do [Miniconda](https://docs.conda.io/en/latest/miniconda.html) ou Anaconda.
 
 **1. Configure as variáveis de ambiente:**
-Crie a sua cópia local do ficheiro `.env` para poder definir em qual dataset a rede será treinada.
+Crie a sua cópia local do arquivo `.env` para poder definir em qual dataset a rede será treinada.
 
 ```bash
 cp ./src/.env-example .env
 ```
 
-*(Nota: O ficheiro local `.env` é ignorado no `.gitignore` para proteger dados de ambiente).*
+*(Nota: O arquivo local `.env` é ignorado no `.gitignore` para proteger dados de ambiente).*
 
 **2. Instale o ambiente controlado e ative-o:**
 O comando abaixo irá instalar o ecossistema exato, incluindo os binários do CUDA 12.4 de forma isolada do seu sistema operativo nativo.
@@ -56,9 +56,9 @@ conda activate roberta-bilstm-env
 
 ## ⚙️ Execução do Pipeline
 
-A arquitetura utiliza o padrão de projeto *Strategy*, permitindo alternar a base de dados em avaliação alterando uma única linha no seu ficheiro `.env`.
+A arquitetura utiliza o padrão de projeto *Strategy*, permitindo alternar a base de dados em avaliação alterando uma única linha no seu arquivo `.env`.
 
-Abra o seu ficheiro `.env` e defina o alvo na variável `DATASET_NAME`:
+Abra o seu arquivo `.env` e defina o alvo na variável `DATASET_NAME`:
 
 * `imdb` (Para o dataset de críticas de filmes - IMDb Review)
 * `twitter_airline` (Para o dataset de aviação civil - Twitter US Airline Sentiment)
@@ -91,7 +91,7 @@ O objetivo principal deste código é reproduzir e balizar a experimentação co
 
 Este repositório é disponibilizado primariamente para investigação e replicação científica sob licença MIT.
 
-Se o uso deste código o auxiliar, por favor cite o artigo metodológico original que forneceu os alicerces teóricos para a construção do pipeline:
+Se você fez uso deste código, por favor cite o artigo metodológico original que forneceu os alicerces teóricos para a construção do pipeline:
 
 ```bibtex
 @article{rahman2025roberta,
@@ -103,5 +103,3 @@ Se o uso deste código o auxiliar, por favor cite o artigo metodológico origina
   doi={10.1109/TETCI.2025.3572150}
 }
 ```
-
-Se houver mais algum pormenor ou secção específica do artigo original que gostaria de transpor para o README (como requisitos de hardware), é só dizer!
