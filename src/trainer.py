@@ -10,7 +10,7 @@ from src.config import DEVICE
 from src.early_stopping import EarlyStopping
 from src.config import (
     DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
-    LEARNING_RATE, EPOCHS, TABELAS_ARTIGO,
+    LEARNING_RATE, EARLY_STOPPING_MAX_EPOCHS, TABELAS_ARTIGO,
     EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA, BATCH_SIZE, MAX_LENGTH
 )
 
@@ -22,7 +22,7 @@ class ModelTrainer:
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
-        self.epochs = EPOCHS
+        self.epochs = EARLY_STOPPING_MAX_EPOCHS
         self.early_stopping = EarlyStopping(patience=EARLY_STOPPING_PATIENCE, delta=EARLY_STOPPING_DELTA)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=LEARNING_RATE)
@@ -139,11 +139,11 @@ class ModelTrainer:
                 "seed": SEED,
                 "max_length": MAX_LENGTH,
                 "batch_size": BATCH_SIZE,
-                "epochs": EPOCHS,
                 "learning_rate": LEARNING_RATE,
                 "hidden_dim": HIDDEN_DIM,
                 "dropout": DROPOUT_PROB,
                 "early_stopping": {
+                    "max-epochs": EARLY_STOPPING_MAX_EPOCHS,
                     "patience": EARLY_STOPPING_PATIENCE,
                     "delta": EARLY_STOPPING_DELTA
                 }
