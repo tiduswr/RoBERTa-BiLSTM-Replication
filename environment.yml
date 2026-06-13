@@ -13,11 +13,14 @@ dependencies:
   - torchaudio
   - pytorch-cuda=12.4
   
-  # Outras dependencias
+  # Ferramentas Científicas e de Machine Learning
   - scikit-learn
   - tqdm
-  - python-dotenv
   - nltk
+
+  # Pacotes de configuração do python
+  - pillow
+  - python-dotenv
   
   # Ecossistema Hugging Face
   - pip
