@@ -1,0 +1,26 @@
+name: roberta-bilstm-env
+channels:
+  - pytorch
+  - nvidia      # Parametro para usar CUDA
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  
+  # PyTorch (Ajuste o pytorch-cuda para a versão do seu driver)
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
+  
+  # Outras dependencias
+  - scikit-learn
+  - tqdm
+  - python-dotenv
+  - nltk
+  
+  # Ecossistema Hugging Face
+  - pip
+  - pip:
+      - transformers==4.37.0
+      - datasets==2.16.1

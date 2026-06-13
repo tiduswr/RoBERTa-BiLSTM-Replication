@@ -5,6 +5,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 
 # ==========================================
 # Jupyter Notebooks
@@ -26,6 +27,7 @@ bert_env/
 # Outputs do Treino (Hugging Face / Trainer)
 # ==========================================
 .results/
+data/
 
 # ==========================================
 # Modelos, Datasets e Ficheiros Pesados
