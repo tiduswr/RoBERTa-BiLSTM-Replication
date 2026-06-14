@@ -54,6 +54,21 @@ conda activate roberta-bilstm-env
 
 ---
 
+## 📊 Gerando os Gráficos de Distribuição de Dados
+
+Desenvolvemos um script de análise que se conecta à API da Hugging Face, descarrega as bases de dados originais, aplica exatamente a mesma semente matemática (`seed=42`) e a mesma proporção de divisão de dados (`90%` para treino) utilizadas no pipeline principal. Isso garante que o gráfico gerado reflita com precisão absoluta o volume de dados que o modelo processou.
+
+Para visualizar as distribuições, basta executar o seguinte comando na raiz do projeto:
+
+```bash
+python -m data_analysis.datasets_analysis 
+```
+
+**Resultado esperado:**
+O script irá processar as contagens dinamicamente e abrir uma janela interativa do Matplotlib com os gráficos renderizados. A partir dessa janela, você pode inspecionar os dados e utilizar o botão de salvar (ícone de disquete) para exportar a imagem no formato (PNG, PDF, SVG, etc.) e diretório da sua preferência, pronta para ser incluída em artigos e relatórios científicos.
+
+---
+
 ## ⚙️ Execução do Pipeline
 
 A arquitetura utiliza o padrão de projeto *Strategy*, permitindo alternar a base de dados em avaliação alterando uma única linha no seu arquivo `.env`.
@@ -87,7 +102,7 @@ O **Smoke Test** é um teste rápido para garantir que todo o seu pipeline está
 
 ### Como executar
 
-No seu terminal, dentro da pasta raiz do projeto, corra:
+No seu terminal, dentro da pasta raiz do projeto, execute:
 
 ```bash
 python -m test.smoke-test
@@ -110,6 +125,36 @@ O objetivo principal deste código é reproduzir e balizar a experimentação co
 | **IMDb** | 92.36% | 92.46% | 92.36% | 92.35% |
 | **Twitter US Airline** | 80.74% | 80.94% | 80.74% | 80.73% |
 | **Sentiment140** | 82.25% | 82.25% | 82.25% | 82.25% |
+
+---
+
+## 📈 Resultados Obtidos
+
+Os resultados experimentais demonstram que a pipeline otimizada não só replicou com sucesso a arquitetura base, como superou as métricas publicadas no artigo original em cenários de grande escala e de desbalanceamento de classes.
+
+### Resumo de Performance
+
+A tabela abaixo apresenta o comparativo direto entre as métricas obtidas nesta replicação independente e os alvos publicados por Rahman *et al.* (2025):
+
+| Dataset | Acurácia<br>(Obtida / Artigo) | Precisão<br>(Obtida / Artigo) | Recall<br>(Obtido / Artigo) | F1-Score<br>(Obtido / Artigo) | Diferença Absoluta |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Sentiment140** | **89,41%** / 82,25% | **89,42%** / 82,25% | **89,41%** / 82,25% | **89,41%** / 82,25% | **+ 7,16%** 🚀 |
+| **Twitter Airline** | **85,66%** / 80,74% | **86,73%** / 80,94% | **85,66%** / 80,74% | **86,03%** / 80,73% | **+ 4,92%** 🚀 |
+| **IMDb** | **92,32%** / 92,36% | **92,33%** / 92,46% | **92,32%** / 92,36% | **92,32%** / 92,35% | **- 0,04%** 🎯 |
+
+### Principais Conclusões
+
+1. **Reprodutibilidade Estrita (IMDb):** O modelo atingiu **92,32%** de acurácia contra os 92,36% do artigo original na época 2. Uma variação de apenas -0,04% valida a fidelidade matemática da nossa implementação da arquitetura RoBERTa-BiLSTM.
+2. **Mitigação de *Overfitting* (Twitter Airline):** Enquanto os autores originais forçaram o treino por 5 épocas fixas, o nosso mecanismo de *early stopping* interrompeu o treino na **Época 1**. Isto impediu que a rede memorizasse o ruído de uma base pequena e desbalanceada, resultando num salto de **+4,92%** na acurácia de teste.
+3. **Ganho por Escala Real (Sentiment140):** Ao utilizar a totalidade do *split* de treino de 90% (1,44 milhões de tweets) protegido por regularização dinâmica, o modelo obteve **89,41%** de acurácia, superando a *baseline* do artigo em **+7,16%**.
+
+### Eficiência e Custo Computacional
+
+Graças à integração de **Automatic Mixed Precision (AMP)** em 16-bits, o pipeline reduziu drasticamente o uso de memória e o tempo de processamento em hardware de consumo local (RTX 4060 Ti 8GB):
+
+* **Twitter US Airline:** Concluído em **04m 43s** (Paragem na Época 1).
+* **IMDb Review:** Concluído em **21m 07s** (Paragem na Época 2).
+* **Sentiment140:** Concluído em **14h 11m 38s** (Executou as 5 épocas completas, restaurando os melhores pesos da Época 3).
 
 ---
 
