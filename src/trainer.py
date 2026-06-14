@@ -28,9 +28,17 @@ class ModelTrainer:
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=LEARNING_RATE)
         
+        # Variáveis para rastreamento no JSON
+        self.start_time_str = None
+        self.best_epoch = EARLY_STOPPING_MAX_EPOCHS
+        
     def train(self) -> None:
+        # Regista o tempo exato em que o treino começa
+        self.start_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"\nA iniciar o ciclo de fine-tuning (Patience={self.early_stopping.patience})...")
         scaler = GradScaler('cuda')
+        
+        best_val_loss = float('inf')
         
         for epoch in range(self.epochs):
             # 1. FASE DE TREINO
@@ -80,6 +88,11 @@ class ModelTrainer:
             avg_val_loss = total_val_loss / len(self.val_loader)
             val_acc = accuracy_score(all_val_labels, all_val_preds) * 100
             print(f"   -> Validação: Loss: {avg_val_loss:.4f} | Acurácia: {val_acc:.2f}%")
+            
+            # Atualiza a melhor época se a loss de validação melhorar
+            if avg_val_loss < best_val_loss:
+                best_val_loss = avg_val_loss
+                self.best_epoch = epoch + 1
             
             self.early_stopping(avg_val_loss, self.model)
             if self.early_stopping.early_stop:
@@ -144,9 +157,17 @@ class ModelTrainer:
         os.makedirs(folder_path, exist_ok=True)
         file_path = os.path.join(folder_path, "experiment_results.json")
         
+        # Se start_time_str não foi definido (ex: avaliar sem treinar), define para o momento atual
+        start_time = self.start_time_str if self.start_time_str else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        finish_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         new_record = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": {
+                "start": start_time,
+                "finish": finish_time
+            },
             "dataset": DATASET_NAME,
+            "optimization": "AMP",
             "hyperparameters": {
                 "seed": SEED,
                 "max_length": MAX_LENGTH,
@@ -160,6 +181,7 @@ class ModelTrainer:
                     "delta": EARLY_STOPPING_DELTA
                 }
             },
+            "best-epoch": self.best_epoch,
             "metrics_obtained": {
                 "accuracy": round(acc, 2),
                 "precision": round(prec, 2),
@@ -177,9 +199,12 @@ class ModelTrainer:
         # Lógica de persistência
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
-                try: data = json.load(f)
-                except: data = []
-        else: data = []
+                try: 
+                    data = json.load(f)
+                except: 
+                    data = []
+        else: 
+            data = []
             
         data.append(new_record)
         
