@@ -103,7 +103,7 @@ O sistema treina durante apenas **1 época** com dados de teste. Se ao final ver
 
 ## 📊 Métricas Alvo (Ground Truth)
 
-O objetivo principal deste código é reproduzir e balizar a experimentação com base na tabela formal documentada no artigo. Ao rodar o pipeline final com a *Learning Rate* em $1\times 10^{-5}$ e *Hidden Units* iguais a 256, os valores-alvo esperados para a validação independente da replicação são:
+O objetivo principal deste código é reproduzir e balizar a experimentação com base na **Tabela V**, que possuí os melhores resultados documentada no artigo. Ao rodar o pipeline final com a *Learning Rate* em $1\times 10^{-5}$ e *Hidden Units* iguais a 256, os valores-alvo esperados para a validação independente da replicação são:
 
 | Dataset / Base | Acurácia (Acc) | Precisão (Prec) | Recall (Rec) | F1-Score |
 | --- | --- | --- | --- | --- |
