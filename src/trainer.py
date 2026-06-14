@@ -11,7 +11,8 @@ from src.early_stopping import EarlyStopping
 from src.config import (
     DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
     LEARNING_RATE, EARLY_STOPPING_MAX_EPOCHS, TABELAS_ARTIGO,
-    EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA, BATCH_SIZE, MAX_LENGTH
+    EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA, BATCH_SIZE, MAX_LENGTH,
+    USE_AMP # <-- Importação da nova flag
 )
 
 class ModelTrainer:
@@ -35,8 +36,10 @@ class ModelTrainer:
     def train(self) -> None:
         # Regista o tempo exato em que o treino começa
         self.start_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"\nA iniciar o ciclo de fine-tuning (Patience={self.early_stopping.patience})...")
-        scaler = GradScaler('cuda')
+        print(f"\nA iniciar o ciclo de fine-tuning (Patience={self.early_stopping.patience}, AMP={USE_AMP})...")
+        
+        # O GradScaler desativa-se automaticamente se enabled=False
+        scaler = GradScaler('cuda', enabled=USE_AMP)
         
         best_val_loss = float('inf')
         
@@ -53,7 +56,8 @@ class ModelTrainer:
                 
                 self.optimizer.zero_grad()
                 
-                with autocast('cuda'):
+                # Autocast respeita a flag do .env dinamicamente
+                with autocast('cuda', enabled=USE_AMP):
                     outputs = self.model(input_ids, attention_mask)
                     loss = self.criterion(outputs, labels)
                 
@@ -76,7 +80,7 @@ class ModelTrainer:
                     attention_mask = batch["attention_mask"].to(DEVICE)
                     labels = batch["label"].to(DEVICE)
                     
-                    with autocast('cuda'):
+                    with autocast('cuda', enabled=USE_AMP):
                         outputs = self.model(input_ids, attention_mask)
                         loss = self.criterion(outputs, labels)
                     
@@ -111,7 +115,7 @@ class ModelTrainer:
                 attention_mask = batch["attention_mask"].to(DEVICE)
                 labels = batch["label"].cpu().numpy()
                 
-                with autocast('cuda'):
+                with autocast('cuda', enabled=USE_AMP):
                     outputs = self.model(input_ids, attention_mask)
                 
                 preds = torch.argmax(outputs, dim=1).cpu().numpy()
@@ -161,13 +165,16 @@ class ModelTrainer:
         start_time = self.start_time_str if self.start_time_str else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         finish_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
+        # Atualização dinâmica do campo optimization
+        optimization_status = "AMP" if USE_AMP else "FP32 (No AMP)"
+        
         new_record = {
             "timestamp": {
                 "start": start_time,
                 "finish": finish_time
             },
             "dataset": DATASET_NAME,
-            "optimization": "AMP",
+            "optimization": optimization_status,
             "hyperparameters": {
                 "seed": SEED,
                 "max_length": MAX_LENGTH,

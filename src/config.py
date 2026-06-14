@@ -15,6 +15,7 @@ DROPOUT_PROB = float(os.getenv("DROPOUT_PROB", "0.1"))
 DATASET_NAME = os.getenv("DATASET_NAME", "imdb").lower()
 HF_TOKEN = os.getenv("HF_TOKEN", "")
 DATASET_MAP_CPU_CORE_NUMBER = int(os.getenv("DATASET_MAP_CPU_CORE_NUMBER", "8"))
+USE_AMP = os.getenv("USE_AMP", "True").lower() in ('true', '1', 't')
 
 # Early Stopping: monitorização de validação
 EARLY_STOPPING_PATIENCE = int(os.getenv("EARLY_STOPPING_PATIENCE", "2"))
