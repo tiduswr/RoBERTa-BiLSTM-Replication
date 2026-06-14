@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "Se você utilizar este código na sua investigação, por favor, cite-o como abaixo."
+title: "Replicação Científica: RoBERTa-BiLSTM para Análise de Sentimentos"
+authors:
+  - family-names: "Alves do Nascimento"
+    given-names: "Harllem"
+    email: "harllem@copin.ufcg.edu.br"
+    affiliation: "Universidade Federal de Campina Grande (UFCG)"
+version: 1.0.0
+date-released: 2026-06-14
+url: "https://github.com/tiduswr/RoBERTa-BiLSTM-Replication
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Rahman"
+    given-names: "Md Mostafizer"
+  - family-names: "Shiplu"
+    given-names: "Ariful Islam"
+  - family-names: "Watanobe"
+    given-names: "Yutaka"
+  - family-names: "Alam"
+    given-names: "Md Ashad"
+  title: "RoBERTa-BiLSTM: A Context-Aware Hybrid Model for Sentiment Analysis"
+  journal: "IEEE Transactions on Emerging Topics in Computational Intelligence"
+  year: 2025
+  doi: "10.1109/TETCI.2025.3572150"
