@@ -8,7 +8,7 @@ authors:
     affiliation: "Universidade Federal de Campina Grande (UFCG)"
 version: 1.0.0
 date-released: 2026-06-14
-url: "https://github.com/tiduswr/RoBERTa-BiLSTM-Replication
+url: "https://github.com/tiduswr/RoBERTa-BiLSTM-Replication"
 preferred-citation:
   type: article
   authors:
