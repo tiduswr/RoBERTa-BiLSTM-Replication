@@ -13,6 +13,8 @@ LEARNING_RATE = float(os.getenv("LEARNING_RATE", "1e-5"))
 HIDDEN_DIM = int(os.getenv("HIDDEN_DIM", "256"))
 DROPOUT_PROB = float(os.getenv("DROPOUT_PROB", "0.1"))
 DATASET_NAME = os.getenv("DATASET_NAME", "imdb").lower()
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+DATASET_MAP_CPU_CORE_NUMBER = int(os.getenv("DATASET_MAP_CPU_CORE_NUMBER", "8"))
 
 # Early Stopping: monitorização de validação
 EARLY_STOPPING_PATIENCE = int(os.getenv("EARLY_STOPPING_PATIENCE", "2"))
