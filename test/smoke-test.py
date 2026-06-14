@@ -1,8 +1,8 @@
-from src.config import DEVICE
-from src.dataset_strategies import DummyStrategy
-from src.data_loader import DataModule
-from src.model import RoBERTaBiLSTM
-from src.trainer import ModelTrainer
+from model.config import DEVICE
+from model.dataset_strategies import DummyStrategy
+from model.data_loader import DataModule
+from model.model import RoBERTaBiLSTM
+from model.trainer import ModelTrainer
 from torch.utils.data import DataLoader, Subset
 
 def run_smoke_test():

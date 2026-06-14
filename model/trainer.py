@@ -6,9 +6,9 @@ import torch.nn as nn
 from torch.amp import GradScaler, autocast
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from tqdm import tqdm
-from src.config import DEVICE
-from src.early_stopping import EarlyStopping
-from src.config import (
+from model.config import DEVICE
+from model.early_stopping import EarlyStopping
+from model.config import (
     DEVICE, SEED, DATASET_NAME, HIDDEN_DIM, DROPOUT_PROB, 
     LEARNING_RATE, EARLY_STOPPING_MAX_EPOCHS, TABELAS_ARTIGO,
     EARLY_STOPPING_PATIENCE, EARLY_STOPPING_DELTA, BATCH_SIZE, MAX_LENGTH,

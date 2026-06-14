@@ -1,8 +1,8 @@
 from typing import Tuple
-from src.dataset_strategies import DatasetStrategy
+from model.dataset_strategies import DatasetStrategy
 from torch.utils.data import DataLoader
 from transformers import RobertaTokenizer
-from src.config import BATCH_SIZE
+from model.config import BATCH_SIZE
 
 class DataModule:
     """Gere a formatação PyTorch e os DataLoaders utilizando injeção de dependência."""

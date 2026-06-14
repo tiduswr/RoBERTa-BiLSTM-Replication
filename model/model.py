@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import RobertaModel
-from src.config import MAX_LENGTH, DROPOUT_PROB, HIDDEN_DIM
+from model.config import MAX_LENGTH, DROPOUT_PROB, HIDDEN_DIM
 
 class RoBERTaBiLSTM(nn.Module):
     """Arquitetura Híbrida Estrita: RoBERTa -> Dropout -> BiLSTM -> Flatten -> Dense 1 -> Dense 2."""

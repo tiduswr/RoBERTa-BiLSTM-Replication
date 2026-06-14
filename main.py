@@ -1,11 +1,11 @@
-from src.config import (
+from model.config import (
     DEVICE, SEED, DATASET_NAME
 )
-from src.utils import set_seed
-from src.data_loader import DataModule
-from src.dataset_strategies import IMDBStrategy, TwitterAirlineStrategy, Sentiment140Strategy
-from src.model import RoBERTaBiLSTM
-from src.trainer import ModelTrainer
+from model.utils import set_seed
+from model.data_loader import DataModule
+from model.dataset_strategies import IMDBStrategy, TwitterAirlineStrategy, Sentiment140Strategy
+from model.model import RoBERTaBiLSTM
+from model.trainer import ModelTrainer
 
 def get_strategy(dataset_name: str):
     """Factory simples para mapear a string do .env para a Estratégia concreta."""

@@ -1,8 +1,8 @@
 from typing import Tuple, Protocol
 from transformers import PreTrainedTokenizer
 from datasets import load_dataset, Dataset, concatenate_datasets
-from src.config import MAX_LENGTH, HF_TOKEN, DATASET_MAP_CPU_CORE_NUMBER
-from src.utils import clean_text
+from model.config import MAX_LENGTH, HF_TOKEN, DATASET_MAP_CPU_CORE_NUMBER
+from model.utils import clean_text
 from huggingface_hub import login
 
 if HF_TOKEN and HF_TOKEN != "":
