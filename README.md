@@ -31,6 +31,33 @@ Para garantir a transparência e a auditoria de terceiros, este projeto adere es
 
 ---
 
+## ⚙️ Configurações do Ambiente (`.env`)
+
+Todo o comportamento do pipeline, desde o processamento de dados até a arquitetura da rede, é controlado por variáveis de ambiente.
+
+### Reprodutibilidade e Dados
+* **`SEED=42`**: Semente matemática global. Garante que os *splits* de dados (90/5/5) e a inicialização dos pesos da rede gerem resultados exatos e reprodutíveis em qualquer máquina.
+* **`DATASET_NAME=imdb`**: Define o conjunto de dados a ser processado e avaliado. *(Opções suportadas: `imdb`, `twitter_airline`, `sentiment140`).*
+* **`DATASET_MAP_CPU_CORE_NUMBER=8`**: Número de núcleos do processador alocados para paralelizar a tokenização dos dados via API da Hugging Face, acelerando o pré-processamento de bases massivas.
+* **`HF_TOKEN=`**: Token de autenticação da Hugging Face. *(Opcional, preencha apenas se for utilizar bases de dados privadas ou com restrição de acesso).*
+
+### Arquitetura do Modelo
+* **`MAX_LENGTH=128`**: Número máximo de tokens (palavras/subpalavras) que o modelo RoBERTa irá ler por comentário. Textos maiores são truncados; menores recebem *padding*.
+* **`HIDDEN_DIM=256`**: Tamanho das unidades ocultas (neurônios) da camada de recorrência (BiLSTM).
+* **`DROPOUT_PROB=0.1`**: Taxa de abandono (10%) aplicada na transição entre o RoBERTa e a BiLSTM para atuar como regularização.
+
+### Hiperparâmetros de Treino
+* **`BATCH_SIZE=16`**: Quantidade de comentários processados simultaneamente pela GPU antes da atualização dos pesos.
+* **`LEARNING_RATE=1e-5`**: Taxa de aprendizado do otimizador (AdamW). O valor de $1 \times 10^{-5}$ é a zona ideal para *fine-tuning* do RoBERTa segundo o artigo replicado.
+* **`USE_AMP=True`**: Ativa o *Automatic Mixed Precision* (FP16). Reduz o uso de VRAM pela metade e acelera significativamente o treino em GPUs modernas (Séries RTX).
+
+### Regularização (Early Stopping dinâmico)
+* **`EARLY_STOPPING_MAX_EPOCHS=5`**: Limite rígido máximo de passagens completas pela base de treino.
+* **`EARLY_STOPPING_PATIENCE=2`**: Número de épocas que o modelo continuará a treinar sem observar melhorias na perda de validação (*Validation Loss*) antes de ser abortado.
+* **`EARLY_STOPPING_DELTA=0.0`**: A melhoria mínima exigida na *Validation Loss* para ser considerada um avanço e resetar o contador de paciência.
+
+---
+
 ## 🚀 Instalação e Reprodutibilidade
 
 Para garantir que o cálculo de tensores ocorra num ambiente isolado, é obrigatório o uso do [Miniconda](https://docs.conda.io/en/latest/miniconda.html) ou Anaconda.
